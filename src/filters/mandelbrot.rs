@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use warp::http::Response;
 use warp::Filter;
 
-use crate::imagegen::mandelbrot::generate_png;
+use crate::imagegen::mandelbrot::{generate_png, ImageRequest};
 
 pub fn mandelbrot() -> impl Filter<Extract = (Response<Vec<u8>>,), Error = warp::Rejection> + Copy {
     warp::path!("images" / "mandelbrot")
@@ -10,7 +10,24 @@ pub fn mandelbrot() -> impl Filter<Extract = (Response<Vec<u8>>,), Error = warp:
         .map(|params: HashMap<String, String>| {
             println!("Query: {:?}", params);
 
-            let img = generate_png();
+            let mut req = ImageRequest {
+                position: (-1.0, 0.0),
+                width: 4.0,
+                height: 4.0,
+                pixel_width: 800,
+                pixel_height: 800,
+                max_iterations: 250,
+            };
+
+            req.position.0 = params.get("x").map_or(-1.0, |s| s.parse::<f64>().unwrap());
+            req.position.1 = params.get("y").map_or(0.0, |s| s.parse::<f64>().unwrap());
+            req.width = params.get("width").map_or(4.0, |s| s.parse::<f64>().unwrap());
+            req.height = params.get("height").map_or(4.0, |s| s.parse::<f64>().unwrap());
+            req.max_iterations = params.get("max_iterations").map_or(250, |s| s.parse::<u16>().unwrap());
+            req.pixel_width = params.get("pixel_width").map_or(600, |s| s.parse::<u32>().unwrap());
+            req.pixel_height = params.get("pixel_height").map_or(600, |s| s.parse::<u32>().unwrap());
+
+            let img = generate_png(&req);
 
             Response::builder()
                 .header("Content-Type", "image/png")

@@ -3,9 +3,28 @@
     <head>
         <meta charset="utf-8">
         <title>Show Image</title>
+        <script>
+            class MandelbrotImageUX {
+                constructor() {
+                    this.image = document.getElementById("mandelbrot_image");
+                    this.image.addEventListener('click', (event) => this.on_image_click(event));
+                }
+
+                on_image_click(event) {
+                    console.log(this.image);
+                    let x = event.pageX - this.image.offsetLeft;
+                    let y = event.pageY - this.image.offsetTop;
+                    console.log("Click: ", [x,y]);
+                }
+            }
+
+            addEventListener('DOMContentLoaded', (event) => {
+                new MandelbrotImageUX()
+            });
+        </script>
     </head>
     <body>
-        <div><i>This hasn't been implemented right yet.</i></div>
-        <img src="/images/mandelbrot">
+        <img id="mandelbrot_image"
+            src="/images/mandelbrot?width=4.0&height=4.0&pixel_width=800&pixel_height=800&max_iterations=100">
     </body>
 </html>
