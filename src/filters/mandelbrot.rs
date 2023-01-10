@@ -4,11 +4,15 @@ use warp::Filter;
 
 use crate::imagegen::mandelbrot::{generate_png, ImageRequest};
 
+/// Handles a request to generate a mandelbrot image.
+/// A response is given in PNG format.
 pub fn mandelbrot() -> impl Filter<Extract = (Response<Vec<u8>>,), Error = warp::Rejection> + Copy {
     warp::path!("images" / "mandelbrot")
         .and(warp::query::<HashMap<String, String>>())
         .map(|params: HashMap<String, String>| {
             println!("Query: {:?}", params);
+
+            // TODO: if parameters aren't specified it would be nice to issue a redirect.
 
             let mut req = ImageRequest {
                 position: (-1.0, 0.0),

@@ -19,7 +19,7 @@ fn create_dir_path(path: &Path) -> Result<(), std::io::Error> {
 
 ///
 /// Create the parent directory if it does not exist.
-/// 
+///
 fn create_parent_dir_if_not_exists(path: &Path) -> Result<(), std::io::Error> {
     if let Some(parent_path) = path.parent() {
         create_dir_path(parent_path)?;
@@ -30,7 +30,7 @@ fn create_parent_dir_if_not_exists(path: &Path) -> Result<(), std::io::Error> {
 ///
 /// Creates a self signed certificate and key file
 /// if the files do not exist.
-/// 
+///
 pub fn generate_self_signed_certs_if_not_exists(
     cert_path: &str,
     key_path: &str,
