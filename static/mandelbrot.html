@@ -12,10 +12,50 @@
 
                 on_image_click(event) {
                     console.log(this.image);
-                    let x = event.pageX - this.image.offsetLeft;
-                    let y = event.pageY - this.image.offsetTop;
-                    console.log("Click: ", [x,y]);
+                    const x = event.pageX - this.image.offsetLeft;
+                    const y = event.pageY - this.image.offsetTop;
+
+                    const img_params = this.get_image_params();
+                    const new_img_params = { ... img_params };
+
+                    const x_delta_ratio = (x - (this.image.width / 2)) / this.image.width;
+                    const y_delta_ratio = (y - (this.image.height / 2)) / this.image.height;
+
+                    new_img_params.x = img_params.x + x_delta_ratio * img_params.width;
+                    new_img_params.y = img_params.y - y_delta_ratio * img_params.height;
+
+                    new_img_params.width = img_params.width / 2;
+                    new_img_params.height = img_params.height / 2;
+
+                    const new_uri = this.get_img_uri(new_img_params);
+                    console.log("previous uri: ", this.image.src);
+                    console.log("new uri: ", new_uri);
+
+                    this.image.src = new_uri;
                 }
+
+                get_img_uri(img_params) {
+                    const params = [];
+                    for (const k in img_params) {
+                        params.push(encodeURIComponent(k) + "=" + encodeURIComponent(img_params[k].toString()));
+                    }
+                    const uri = "/images/mandelbrot?" + params.join("&");
+                    return uri;
+                }
+
+                get_image_params() {
+                    let params = {};
+                    let kv_pairs = this.image.src.substring(this.image.src.indexOf('?') + 1).split("&");
+                    kv_pairs.forEach(kv => {
+                        let pair = kv.split('=');
+                        let key = decodeURIComponent(pair[0]);
+                        let val = decodeURIComponent(pair[1]);
+                        val = parseFloat(val);
+                        params[key] = val;
+                    });
+                    return params;
+                }
+
             }
 
             addEventListener('DOMContentLoaded', (event) => {
@@ -25,6 +65,6 @@
     </head>
     <body>
         <img id="mandelbrot_image"
-            src="/images/mandelbrot?width=4.0&height=4.0&pixel_width=800&pixel_height=800&max_iterations=100">
+            src="/images/mandelbrot?x=-1.0&y=0.0&width=4.0&height=4.0&pixel_width=800&pixel_height=800&max_iterations=500">
     </body>
 </html>
