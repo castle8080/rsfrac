@@ -8,6 +8,12 @@
             class MandelbrotImageUX {
                 constructor() {
                     this.image = document.getElementById("mandelbrot_image");
+
+                    // Check the page URI for parameters to give to the image.
+                    if (window.location.search.length > 0) {
+                        this.image.src = "/images/mandelbrot" + window.location.search;
+                    }
+                    
                     this.image.addEventListener('click', (event) => this.on_image_click(event));
                 }
 
@@ -28,20 +34,19 @@
                     new_img_params.width = img_params.width / 2;
                     new_img_params.height = img_params.height / 2;
 
-                    const new_uri = this.get_img_uri(new_img_params);
-                    console.log("previous uri: ", this.image.src);
-                    console.log("new uri: ", new_uri);
+                    const new_uri_params = this.get_uri_params(new_img_params);
 
-                    this.image.src = new_uri;
+                    // Update the image uri and update the page uri so you can back here.
+                    this.image.src = "/images/mandelbrot?" + new_uri_params;
+                    window.history.replaceState({}, "", "/mandelbrot.html?" + new_uri_params);
                 }
 
-                get_img_uri(img_params) {
+                get_uri_params(img_params) {
                     const params = [];
                     for (const k in img_params) {
                         params.push(encodeURIComponent(k) + "=" + encodeURIComponent(img_params[k].toString()));
                     }
-                    const uri = "/images/mandelbrot?" + params.join("&");
-                    return uri;
+                    return params.join("&");
                 }
 
                 get_image_params() {
