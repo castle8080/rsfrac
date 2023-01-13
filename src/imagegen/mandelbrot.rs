@@ -1,5 +1,50 @@
 use image::ImageBuffer;
 
+pub type Color = image::Rgb<u8>;
+
+pub struct Colors {
+}
+
+impl Colors {
+    pub fn white() -> Color {
+        image::Rgb([255, 255, 255])
+    }
+
+    pub fn black() -> Color {
+        image::Rgb([0, 0, 0])
+    }
+
+    pub fn between(start_color: Color, end_color: Color, ratio: f64) -> Color {
+        image::Rgb([
+            Colors::_between(start_color[0], end_color[0], ratio),
+            Colors::_between(start_color[1], end_color[1], ratio),
+            Colors::_between(start_color[2], end_color[2], ratio),
+        ])
+    }
+
+    fn _between(start: u8, end: u8, ratio: f64) -> u8 {
+        (((end as i16 - start as i16) as f64 * ratio) + start as f64) as u8
+    }
+
+    pub fn parse(rgbstr: &String) -> Option<Color> {
+        if rgbstr.len() == 0 || !rgbstr.starts_with("#") {
+            None
+        }
+        else {
+            match i64::from_str_radix(&rgbstr[1..rgbstr.len()], 16) {
+                Err(_) => None,
+                Ok(n) => {
+                    Some(image::Rgb([
+                        (n >> 16 & 0xff) as u8,
+                        (n >> 8 & 0xff) as u8,
+                        (n & 0xff) as u8,
+                    ]))
+                }
+            }
+        }
+    }
+} 
+
 pub struct ImageRequest {
     pub position: (f64, f64),
     pub width: f64,
@@ -7,6 +52,8 @@ pub struct ImageRequest {
     pub pixel_width: u32,
     pub pixel_height: u32,
     pub max_iterations: u16,
+    pub start_color: Color,
+    pub end_color: Color,
 }
 
 impl ImageRequest {
@@ -46,11 +93,7 @@ pub fn generate_image(request: &ImageRequest) -> ImageBuffer<image::Rgb<u8>, Vec
         let (x, y) = request.get_pixel_position(x, y);
         
         let escape_ratio = get_escape(x, y, request.max_iterations);
-        image::Rgb([
-            (escape_ratio * 255.0) as u8,
-            (escape_ratio * 255.0) as u8,
-            (escape_ratio * 255.0) as u8,
-        ])
+        Colors::between(request.start_color, request.end_color, escape_ratio)
     })
 }
 

@@ -8,13 +8,25 @@
             class MandelbrotImageUX {
                 constructor() {
                     this.image = document.getElementById("mandelbrot_image");
+                    this.start_color = document.getElementById("start_color");
+                    this.end_color = document.getElementById("end_color");
 
                     // Check the page URI for parameters to give to the image.
                     if (window.location.search.length > 0) {
                         this.image.src = "/images/mandelbrot" + window.location.search;
+                        const img_params = this.get_image_params();
+                        if (img_params.start_color) {
+                            this.start_color.value = img_params.start_color;
+                        }
+                        if (img_params.end_color) {
+                            this.end_color = img_params.end_color;
+                        }
                     }
                     
                     this.image.addEventListener('click', (event) => this.on_image_click(event));
+
+                    this.start_color.addEventListener('change', (event) => this.on_control_change());
+                    this.end_color.addEventListener('change', (event) => this.on_control_change());
                 }
 
                 on_image_click(event) {
@@ -34,11 +46,26 @@
                     new_img_params.width = img_params.width / 2;
                     new_img_params.height = img_params.height / 2;
 
-                    const new_uri_params = this.get_uri_params(new_img_params);
+                    new_img_params.start_color = this.start_color.value;
+                    new_img_params.end_color = this.end_color.value;
 
+                    this.set_new_img_params(this.get_uri_params(new_img_params));
+                }
+
+                on_control_change() {
+                    const img_params = this.get_image_params();
+                    const new_img_params = { ... img_params };
+
+                    new_img_params.start_color = this.start_color.value;
+                    new_img_params.end_color = this.end_color.value;
+
+                    this.set_new_img_params(this.get_uri_params(new_img_params));
+                }
+
+                set_new_img_params(uri_params) {
                     // Update the image uri and update the page uri so you can back here.
-                    this.image.src = "/images/mandelbrot?" + new_uri_params;
-                    window.history.replaceState({}, "", "/mandelbrot.html?" + new_uri_params);
+                    this.image.src = "/images/mandelbrot?" + uri_params;
+                    window.history.replaceState({}, "", "/mandelbrot.html?" + uri_params);
                 }
 
                 get_uri_params(img_params) {
@@ -56,7 +83,9 @@
                         let pair = kv.split('=');
                         let key = decodeURIComponent(pair[0]);
                         let val = decodeURIComponent(pair[1]);
-                        val = parseFloat(val);
+                        if (!key.includes("color")) {
+                            val = parseFloat(val);
+                        }
                         params[key] = val;
                     });
                     return params;
@@ -70,6 +99,13 @@
         </script>
     </head>
     <body>
+        <div>
+            <input type="color" id="start_color" name="start_color" value="#000000">
+            <label for="start_color">Starting Color</label>
+            <input type="color" id="end_color" name="end_color" value="#ffffff">
+            <label for="end_color">Ending Color</label>
+            <p></p>
+        </div>
         <img id="mandelbrot_image"
             src="/images/mandelbrot?x=-1.0&y=0.0&width=4.0&height=4.0&pixel_width=800&pixel_height=800&max_iterations=500">
     </body>
