@@ -33,8 +33,8 @@ pub fn mandelbrot() -> impl Filter<Extract = (Response<Vec<u8>>,), Error = warp:
             req.pixel_width = params.get("pixel_width").map_or(600, |s| s.parse::<u32>().unwrap());
             req.pixel_height = params.get("pixel_height").map_or(600, |s| s.parse::<u32>().unwrap());
 
-            req.start_color = params.get("start_color").map_or(Colors::white(), |s| Colors::parse(s).unwrap());
-            req.end_color = params.get("end_color").map_or(Colors::black(), |s| Colors::parse(s).unwrap());
+            req.start_color = params.get("start_color").map_or(Colors::black(), |s| Colors::parse(s).unwrap());
+            req.end_color = params.get("end_color").map_or(Colors::white(), |s| Colors::parse(s).unwrap());
 
             let img = generate_png(&req);
 
